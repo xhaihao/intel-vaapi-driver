@@ -168,7 +168,7 @@ gen9_render_set_surface_state(
     switch (flags & (VA_TOP_FIELD | VA_BOTTOM_FIELD)) {
     case VA_BOTTOM_FIELD:
         ss->ss0.vert_line_stride_ofs = 1;
-        /* fall-through */
+
     case VA_TOP_FIELD:
         ss->ss0.vert_line_stride = 1;
         height /= 2;

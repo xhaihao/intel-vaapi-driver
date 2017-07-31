@@ -789,7 +789,7 @@ gen7_mfc_mpeg2_pipeline_slice_group(VADriverContextP ctx,
     v_start_pos = slice_param->macroblock_address / width_in_mbs;
     assert(h_start_pos + slice_param->num_macroblocks <= width_in_mbs);
 
-    dri_bo_map(vme_context->vme_output.bo , 0);
+    dri_bo_map(vme_context->vme_output.bo, 0);
     msg_ptr = (unsigned char *)vme_context->vme_output.bo->virtual;
 
     if (next_slice_group_param) {
@@ -1119,7 +1119,6 @@ gen7_mfc_pipeline(VADriverContextP ctx,
         vaStatus = gen7_mfc_mpeg2_encode_picture(ctx, encode_state, encoder_context);
         break;
 
-        /* FIXME: add for other profile */
     default:
         vaStatus = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
         break;

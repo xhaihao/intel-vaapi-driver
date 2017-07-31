@@ -984,8 +984,7 @@ gen8_pp_plx_avs_initialize(VADriverContextP ctx, struct i965_post_processing_con
 
     assert(avs->config->num_phases >= 16);
     for (i = 0; i <= 16; i++) {
-        struct gen8_sampler_8x8_avs_coefficients * const sampler_8x8_state =
-                    &sampler_8x8->coefficients[i];
+        struct gen8_sampler_8x8_avs_coefficients * const sampler_8x8_state = &sampler_8x8->coefficients[i];
         const AVSCoeffs * const coeffs = &avs->coeffs[i];
 
         sampler_8x8_state->dw0.table_0x_filter_c0 =
@@ -1054,8 +1053,7 @@ gen8_pp_plx_avs_initialize(VADriverContextP ctx, struct i965_post_processing_con
     sampler_8x8->dw153.bypass_x_adaptive_filtering = 1;
 
     for (; i <= avs->config->num_phases; i++) {
-        struct gen8_sampler_8x8_avs_coefficients * const sampler_8x8_state =
-                    &sampler_8x8->coefficients1[i - 17];
+        struct gen8_sampler_8x8_avs_coefficients * const sampler_8x8_state = &sampler_8x8->coefficients1[i - 17];
         const AVSCoeffs * const coeffs = &avs->coeffs[i];
 
         sampler_8x8_state->dw0.table_0x_filter_c0 =

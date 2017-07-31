@@ -1326,8 +1326,7 @@ gen75_vebox_ensure_surfaces(VADriverContextP ctx,
                    obj_surface->base.id;
     if (is_new_frame) {
         ifs = &proc_ctx->frame_store[FRAME_IN_PREVIOUS];
-        ofs = &proc_ctx->frame_store[proc_ctx->is_dn_enabled ?
-                                     FRAME_OUT_CURRENT_DN : FRAME_IN_CURRENT];
+        ofs = &proc_ctx->frame_store[proc_ctx->is_dn_enabled ? FRAME_OUT_CURRENT_DN : FRAME_IN_CURRENT];
         do {
             const VAProcPipelineParameterBuffer * const pipe =
                 proc_ctx->pipeline_param;
@@ -1673,8 +1672,7 @@ gen75_vebox_init_filter_params(VADriverContextP ctx,
             !(deint_params->flags & VA_DEINTERLACING_BOTTOM_FIELD);
 
         if ((tff ^ is_top_field) != 0) {
-            struct object_surface * const obj_surface =
-                        proc_ctx->surface_input_object;
+            struct object_surface * const obj_surface = proc_ctx->surface_input_object;
 
             if (proc_ctx->frame_store[FRAME_IN_CURRENT].surface_id != obj_surface->base.id) {
                 WARN_ONCE("invalid surface provided for second field\n");

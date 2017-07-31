@@ -152,8 +152,7 @@ static const int8_t buf_rate_adj_tab_b_vbr[72] = {
     64, 48, 28,  20,  16,  12,   8,   4,
 };
 
-static const struct huc_brc_update_constant_data
-        gen9_brc_update_constant_data = {
+static const struct huc_brc_update_constant_data gen9_brc_update_constant_data = {
     .global_rate_qp_adj_tab_i = {
         48, 40, 32,  24,  16,   8,   0,  -8,
         40, 32, 24,  16,   8,   0,  -8, -16,

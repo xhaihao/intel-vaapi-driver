@@ -905,11 +905,11 @@ static void gen9_hcpe_init(VADriverContextP ctx,
     int ctb_size = 1 << log2_ctb_size;
     int cu_size  = 1 << log2_cu_size;
 
-    int width_in_ctb  = ALIGN(pSequenceParameter->pic_width_in_luma_samples , ctb_size) / ctb_size;
+    int width_in_ctb  = ALIGN(pSequenceParameter->pic_width_in_luma_samples, ctb_size) / ctb_size;
     int height_in_ctb = ALIGN(pSequenceParameter->pic_height_in_luma_samples, ctb_size) / ctb_size;
-    int width_in_cu  = ALIGN(pSequenceParameter->pic_width_in_luma_samples , cu_size) / cu_size;
+    int width_in_cu  = ALIGN(pSequenceParameter->pic_width_in_luma_samples, cu_size) / cu_size;
     int height_in_cu = ALIGN(pSequenceParameter->pic_height_in_luma_samples, cu_size) / cu_size;
-    int width_in_mb  = ALIGN(pSequenceParameter->pic_width_in_luma_samples , 16) / 16;
+    int width_in_mb  = ALIGN(pSequenceParameter->pic_width_in_luma_samples, 16) / 16;
     int height_in_mb = ALIGN(pSequenceParameter->pic_height_in_luma_samples, 16) / 16;
 
     int num_cu_record = 64;
@@ -1744,9 +1744,9 @@ gen9_hcpe_hevc_pipeline_slice_programing(VADriverContextP ctx,
 
     split_coding_unit_flag = (ctb_width_in_mb == 4) ? HEVC_SPLIT_CU_FLAG_64_64 : ((ctb_width_in_mb == 2) ? HEVC_SPLIT_CU_FLAG_32_32 : HEVC_SPLIT_CU_FLAG_16_16);
 
-    dri_bo_map(vme_context->vme_output.bo , 1);
+    dri_bo_map(vme_context->vme_output.bo, 1);
     msg_ptr = (unsigned char *)vme_context->vme_output.bo->virtual;
-    dri_bo_map(mfc_context->hcp_indirect_cu_object.bo , 1);
+    dri_bo_map(mfc_context->hcp_indirect_cu_object.bo, 1);
 
     for (i_ctb = pSliceParameter->slice_segment_address; i_ctb < pSliceParameter->slice_segment_address + pSliceParameter->num_ctu_in_slice; i_ctb++) {
         int last_ctb = (i_ctb == (pSliceParameter->slice_segment_address + pSliceParameter->num_ctu_in_slice - 1));

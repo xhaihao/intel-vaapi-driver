@@ -556,7 +556,7 @@ void binarize_vp8_frame_header(VAEncSequenceParameterBufferVP8 *seq_param,
 
     if (is_intra_frame) {
         avc_bitstream_put_ui(&bs, 0, 1);
-        avc_bitstream_put_ui(&bs, pic_param->pic_flags.bits.clamping_type , 1);
+        avc_bitstream_put_ui(&bs, pic_param->pic_flags.bits.clamping_type, 1);
     }
 
     avc_bitstream_put_ui(&bs, pic_param->pic_flags.bits.segmentation_enabled, 1);
@@ -724,7 +724,7 @@ int build_hevc_sei_buffering_period(int init_cpb_removal_delay_length,
 
     avc_bitstream_start(&nal_bs);
     nal_start_code_prefix(&nal_bs);
-    nal_header_hevc(&nal_bs, PREFIX_SEI_NUT , 0);
+    nal_header_hevc(&nal_bs, PREFIX_SEI_NUT, 0);
 
     /* Write the SEI buffer period data */
     avc_bitstream_put_ui(&nal_bs, 0, 8);
@@ -794,7 +794,7 @@ int build_hevc_idr_sei_buffer_timing(unsigned int init_cpb_removal_delay_length,
 
     avc_bitstream_start(&nal_bs);
     nal_start_code_prefix(&nal_bs);
-    nal_header_hevc(&nal_bs, PREFIX_SEI_NUT , 0);
+    nal_header_hevc(&nal_bs, PREFIX_SEI_NUT, 0);
 
     /* Write the SEI buffer period data */
     avc_bitstream_put_ui(&nal_bs, 0, 8);
@@ -856,7 +856,7 @@ int build_hevc_sei_pic_timing(unsigned int cpb_removal_length, unsigned int cpb_
 
     avc_bitstream_start(&nal_bs);
     nal_start_code_prefix(&nal_bs);
-    nal_header_hevc(&nal_bs, PREFIX_SEI_NUT , 0);
+    nal_header_hevc(&nal_bs, PREFIX_SEI_NUT, 0);
 
     /* write the SEI Pic timing data */
     avc_bitstream_put_ui(&nal_bs, 0x01, 8);

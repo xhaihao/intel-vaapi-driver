@@ -374,8 +374,7 @@ i965_media_h264_surfaces_setup(VADriverContextP ctx,
 
     /* Reference Pictures */
     for (i = 0; i < ARRAY_ELEMS(i965_h264_context->fsid_list); i++) {
-        struct object_surface * const obj_surface =
-                    i965_h264_context->fsid_list[i].obj_surface;
+        struct object_surface * const obj_surface = i965_h264_context->fsid_list[i].obj_surface;
 
         if (obj_surface) {
             const VAPictureH264 * const va_pic = avc_find_picture(

@@ -72,8 +72,7 @@ mpeg2_wa_slice_vertical_position(
     mb_height = (pic_param->vertical_size + 31) / 32;
 
     for (j = 0; j < decode_state->num_slice_params; j++) {
-        struct buffer_store * const buffer_store =
-                    decode_state->slice_params[j];
+        struct buffer_store * const buffer_store = decode_state->slice_params[j];
 
         for (i = 0; i < buffer_store->num_elements; i++) {
             VASliceParameterBufferMPEG2 * const slice_param =
@@ -603,8 +602,7 @@ intel_update_codec_frame_store_index(
 
     /* Tag entries that are still available in our Frame Store */
     for (i = 0; i < ARRAY_ELEMS(decode_state->reference_objects); i++) {
-        struct object_surface * const obj_surface =
-                    decode_state->reference_objects[i];
+        struct object_surface * const obj_surface = decode_state->reference_objects[i];
         if (!obj_surface)
             continue;
 
@@ -638,8 +636,7 @@ intel_update_codec_frame_store_index(
 
     /* Append the new reference frames */
     for (i = 0, n = 0; i < ARRAY_ELEMS(decode_state->reference_objects); i++) {
-        struct object_surface * const obj_surface =
-                    decode_state->reference_objects[i];
+        struct object_surface * const obj_surface = decode_state->reference_objects[i];
         if (!obj_surface || !(add_refs & (1 << i)))
             continue;
 
@@ -726,8 +723,7 @@ gen75_update_avc_frame_store_index(
     /* Construct the Frame Store array, in compact form. i.e. empty or
        invalid entries are discarded. */
     for (i = 0, n = 0; i < ARRAY_ELEMS(decode_state->reference_objects); i++) {
-        struct object_surface * const obj_surface =
-                    decode_state->reference_objects[i];
+        struct object_surface * const obj_surface = decode_state->reference_objects[i];
         if (!obj_surface)
             continue;
 

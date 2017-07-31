@@ -537,7 +537,8 @@ i965_QueryConfigProfiles(VADriverContextP ctx,
 
     if (HAS_H264_DECODING(i965) ||
         HAS_H264_ENCODING(i965) ||
-        HAS_LP_H264_ENCODING(i965)) {
+        HAS_LP_H264_ENCODING(i965) ||
+        HAS_FEI_H264_ENCODING(i965)) {
         profile_list[i++] = VAProfileH264ConstrainedBaseline;
         profile_list[i++] = VAProfileH264Main;
         profile_list[i++] = VAProfileH264High;
@@ -645,6 +646,9 @@ i965_QueryConfigEntrypoints(VADriverContextP ctx,
 
         if (HAS_LP_H264_ENCODING(i965))
             entrypoint_list[n++] = VAEntrypointEncSliceLP;
+
+        if (HAS_FEI_H264_ENCODING(i965))
+            entrypoint_list[n++] = VAEntrypointFEI;
 
         break;
     case VAProfileH264MultiviewHigh:
@@ -762,10 +766,11 @@ i965_validate_config(VADriverContextP ctx, VAProfile profile,
     case VAProfileH264High:
         if ((HAS_H264_DECODING(i965) && entrypoint == VAEntrypointVLD) ||
             (HAS_H264_ENCODING(i965) && entrypoint == VAEntrypointEncSlice) ||
-            (HAS_LP_H264_ENCODING(i965) && entrypoint == VAEntrypointEncSliceLP)) {
+            (HAS_LP_H264_ENCODING(i965) && entrypoint == VAEntrypointEncSliceLP) ||
+            (HAS_FEI_H264_ENCODING(i965) && entrypoint == VAEntrypointFEI)) {
             va_status = VA_STATUS_SUCCESS;
         } else if (!HAS_H264_DECODING(i965) && !HAS_H264_ENCODING(i965) &&
-                   !HAS_LP_H264_ENCODING(i965)) {
+                   !HAS_LP_H264_ENCODING(i965) && !HAS_FEI_H264_ENCODING(i965)) {
             va_status = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
         } else {
             va_status = VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
@@ -994,6 +999,14 @@ i965_GetConfigAttributes(VADriverContextP ctx,
                     attrib_list[i].value = i965->codec_info->lp_h264_brc_mode;
                 else
                     attrib_list[i].value = VA_ATTRIB_NOT_SUPPORTED;
+            } else if (entrypoint == VAEntrypointFEI) {
+                /* Only CQP is supported in FEI Entrypoint */
+                if (profile == VAProfileH264ConstrainedBaseline ||
+                    profile == VAProfileH264Main ||
+                    profile == VAProfileH264High)
+                    attrib_list[i].value = VA_RC_CQP;
+                else
+                    attrib_list[i].value = VA_ATTRIB_NOT_SUPPORTED;
             } else
                 attrib_list[i].value = VA_ATTRIB_NOT_SUPPORTED;
 
@@ -1001,7 +1014,8 @@ i965_GetConfigAttributes(VADriverContextP ctx,
 
         case VAConfigAttribEncPackedHeaders:
             if (entrypoint == VAEntrypointEncSlice ||
-                entrypoint == VAEntrypointEncSliceLP) {
+                entrypoint == VAEntrypointEncSliceLP ||
+                entrypoint == VAEntrypointFEI) {
                 attrib_list[i].value = VA_ENC_PACKED_HEADER_SEQUENCE | VA_ENC_PACKED_HEADER_PICTURE | VA_ENC_PACKED_HEADER_MISC;
                 if (profile == VAProfileH264ConstrainedBaseline ||
                     profile == VAProfileH264Main ||
@@ -1177,6 +1191,17 @@ i965_GetConfigAttributes(VADriverContextP ctx,
             }
 
             break;
+
+        case VAConfigAttribFEIFunctionType:
+            /* Supporing all possible modes of FEI */
+            attrib_list[i].value = VA_FEI_FUNCTION_ENC |
+                                   VA_FEI_FUNCTION_PAK | VA_FEI_FUNCTION_ENC_PAK;
+            break;
+
+        case VAConfigAttribFEIMVPredictors:
+            attrib_list[i].value = 4;
+            break;
+
         default:
             /* Do nothing */
             attrib_list[i].value = VA_ATTRIB_NOT_SUPPORTED;
@@ -2441,7 +2466,8 @@ i965_CreateContext(VADriverContextP ctx,
             obj_context->hw_context = i965->codec_info->proc_hw_context_init(ctx, obj_config);
         } else if ((VAEntrypointEncSlice == obj_config->entrypoint) ||
                    (VAEntrypointEncPicture == obj_config->entrypoint) ||
-                   (VAEntrypointEncSliceLP == obj_config->entrypoint)) {
+                   (VAEntrypointEncSliceLP == obj_config->entrypoint) ||
+                   (VAEntrypointFEI == obj_config->entrypoint)) {
             VAConfigAttrib *packed_attrib;
             obj_context->codec_type = CODEC_ENC;
             memset(&obj_context->codec_state.encode, 0, sizeof(obj_context->codec_state.encode));
@@ -2623,6 +2649,12 @@ i965_create_buffer_internal(VADriverContextP ctx,
     case VAHuffmanTableBufferType:
     case VAProbabilityBufferType:
     case VAEncMacroblockMapBufferType:
+    case VAEncQpBufferType:
+    case VAEncFEIMVBufferType:
+    case VAEncFEIMBCodeBufferType:
+    case VAEncFEIDistortionBufferType:
+    case VAEncFEIMBControlBufferType:
+    case VAEncFEIMVPredictorBufferType:
         /* Ok */
         break;
 
@@ -2684,7 +2716,13 @@ i965_create_buffer_internal(VADriverContextP ctx,
                type == VAImageBufferType ||
                type == VAEncCodedBufferType ||
                type == VAEncMacroblockMapBufferType ||
-               type == VAProbabilityBufferType) {
+               type == VAProbabilityBufferType ||
+               type == VAEncQpBufferType ||
+               type == VAEncFEIMVBufferType ||
+               type == VAEncFEIMBCodeBufferType ||
+               type == VAEncFEIDistortionBufferType ||
+               type == VAEncFEIMBControlBufferType ||
+               type == VAEncFEIMVPredictorBufferType) {
 
         /* If the buffer is wrapped, the bo/buffer of buffer_store is bogus.
          * So it is enough to allocate one 64 byte bo
@@ -3712,7 +3750,8 @@ i965_RenderPicture(VADriverContextP ctx,
         vaStatus = i965_proc_render_picture(ctx, context, buffers, num_buffers);
     } else if ((VAEntrypointEncSlice == obj_config->entrypoint) ||
                (VAEntrypointEncPicture == obj_config->entrypoint) ||
-               (VAEntrypointEncSliceLP == obj_config->entrypoint)) {
+               (VAEntrypointEncSliceLP == obj_config->entrypoint) ||
+               (VAEntrypointFEI == obj_config->entrypoint)) {
         vaStatus = i965_encoder_render_picture(ctx, context, buffers, num_buffers);
     } else {
         vaStatus = i965_decoder_render_picture(ctx, context, buffers, num_buffers);
@@ -3737,7 +3776,8 @@ i965_EndPicture(VADriverContextP ctx, VAContextID context)
     } else if (obj_context->codec_type == CODEC_ENC) {
         ASSERT_RET(((VAEntrypointEncSlice == obj_config->entrypoint) ||
                     (VAEntrypointEncPicture == obj_config->entrypoint) ||
-                    (VAEntrypointEncSliceLP == obj_config->entrypoint)),
+                    (VAEntrypointEncSliceLP == obj_config->entrypoint) ||
+                    (VAEntrypointFEI == obj_config->entrypoint)),
                    VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT);
 
         if (obj_context->codec_state.encode.num_packed_header_params_ext !=
